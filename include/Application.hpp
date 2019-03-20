@@ -18,27 +18,28 @@
 namespace PantherExpress {
   class Application {
     private:
-      std::set<PantherExpress::HandlerMap> handlers;
+      std::set<std::shared_ptr<PantherExpress::HandlerMap>> getHandlers;
+      std::set<std::shared_ptr<PantherExpress::HandlerMap>> postHandlers;
+      std::set<std::shared_ptr<PantherExpress::HandlerMap>> putHandlers;
+      std::set<std::shared_ptr<PantherExpress::HandlerMap>> deleteHandlers;
 
       struct MHD_Connection *connection;
       struct MHD_Daemon *daemon;
       
-      static int answer_to_connection(
-        void *cls,
-        struct MHD_Connection *connection,
-        const char *url,
-        const char *method,
-        const char *version,
-        const char *body,
-        size_t *body_size,
-        void **con_cls);
+      static int answer_to_connection(void *cls, struct MHD_Connection *connection, const char *url, const char *method, const char *version, const char *body, size_t *body_size, void **con_cls);
 
     public:
       int listen(int port);
       void setConnection(struct MHD_Connection *connection);
       struct MHD_Connection* getConnection();
       
-      //void get(std::string &path, std::shared_ptr<PantherExpress::Controller> controller);
+      int routeResponse(std::string method, std::string path, std::shared_ptr<PantherExpress::Response> res);
+      
+      void Get(std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
+      void Post(std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
+      void Put(std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
+      void Delete(std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
+      void All(std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
   };
 }
 

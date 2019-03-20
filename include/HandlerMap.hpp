@@ -2,17 +2,16 @@
 #define _PANTHER_HANDLERMAP_
 
 #include <memory>
-#include "Controller.hpp"
+#include "ControllerFactory.hpp"
 
 namespace PantherExpress {
   class HandlerMap {
-    private:
+    public:
       std::string method;
       std::string path;
-      std::shared_ptr<PantherExpress::Controller> controller;
+      std::shared_ptr<PantherExpress::ControllerFactory> factory;
 
-    public:
-      HandlerMap(std::string &method, std::string &path, std::shared_ptr<PantherExpress::Controller> controller);
+      HandlerMap(std::string method, std::string path, std::shared_ptr<PantherExpress::ControllerFactory> factory);
   };
 }
 
