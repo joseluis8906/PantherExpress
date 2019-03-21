@@ -1,58 +1,66 @@
 #include "Application.hpp"
 #include "ControllerFactory.hpp"
 #include "Controller.hpp"
+#include "Middleware.hpp"
 #include <iostream>
+#include <memory>
+#include <vector>
 
-class HelloGetController: public PantherExpress::Controller {
+using namespace PantherExpress;
+using namespace std;
+
+class SumMiddleware: public Middleware {
   public:
-  int handler(std::shared_ptr<PantherExpress::Response> res) {
-    return res->send("Hello GET controller");
-  }
+    int validate(shared_ptr<Response> res) {
+      if ( 2 + 2 == 2 ) {
+        return res->status(HTTP_STATUS::CONFLICT)->send("2 + 2 is diferent to 2.");
+      }
+      return 0;
+    }
 };
 
-class HelloPostController: public PantherExpress::Controller {
+class DiffMiddleware: public Middleware {
   public:
-  int handler(std::shared_ptr<PantherExpress::Response> res) {
-    return res->send("Hello POST controller");
-  }
+    int validate(shared_ptr<Response> res) {
+      if ( 2 - 2 == 2 ) {
+        return res->status(HTTP_STATUS::CONFLICT)->send("2 - 2 diferent to 2.");
+      }
+      return 0;
+    }
 };
 
-class HelloPutController: public PantherExpress::Controller {
+class HelloGetController: public Controller {
   public:
-  int handler(std::shared_ptr<PantherExpress::Response> res) {
-    return res->send("Hello PUT controller");
-  }
+    int handler(shared_ptr<Response> res) {
+      return res->send("Hello GET controller");
+    }
 };
 
-class HelloDeleteController: public PantherExpress::Controller {
+class HelloControllerFactory: public ControllerFactory {
   public:
-  int handler(std::shared_ptr<PantherExpress::Response> res) {
-    return res->send("Hello DELETE controller");
-  }
-};
-
-class HelloControllerFactory: public PantherExpress::ControllerFactory {
-  public:
-  std::shared_ptr<PantherExpress::Controller> makeGetController() {
-    return std::shared_ptr<HelloGetController>(new HelloGetController());
-  }
-  
-  std::shared_ptr<PantherExpress::Controller> makePostController() {
-    return std::shared_ptr<HelloPostController>(new HelloPostController());
-  }
-  
-  std::shared_ptr<PantherExpress::Controller> makePutController() {
-    return std::shared_ptr<HelloPutController>(new HelloPutController());
-  }
-  
-  std::shared_ptr<PantherExpress::Controller> makeDeleteController() {
-    return std::shared_ptr<HelloDeleteController>(new HelloDeleteController());
-  }
+    shared_ptr<Controller> makeGetController() {
+      return shared_ptr<HelloGetController>(new HelloGetController());
+    }
+    
+    shared_ptr<Controller> makePostController() {
+      return NULL;
+    }
+    
+    shared_ptr<Controller> makePutController() {
+      return NULL;
+    }
+    
+    shared_ptr<Controller> makeDeleteController() {
+      return NULL;
+    }
 };
 
 int main(int argc, char** argv) {
-  PantherExpress::Application app = PantherExpress::Application();
-  std::string endPoint = "/hello";
-  app.All(endPoint, std::shared_ptr<HelloControllerFactory>(new HelloControllerFactory()));
-  return app.listen(8888);
+  shared_ptr<Application> app = shared_ptr<Application>(new Application());
+  string endPoint = "/hello";
+  vector<shared_ptr<Middleware>> helloMiddlewares;
+  helloMiddlewares.push_back(shared_ptr<Middleware>(new SumMiddleware()));
+  helloMiddlewares.push_back(shared_ptr<Middleware>(new DiffMiddleware()));
+  app->Get(endPoint, shared_ptr<HelloControllerFactory>(new HelloControllerFactory()), helloMiddlewares);
+  return app->listen(8888);
 }

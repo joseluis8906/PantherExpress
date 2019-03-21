@@ -7,7 +7,7 @@
 namespace PantherExpress {
   class Controller {
     public:
-    virtual int handler(std::shared_ptr<PantherExpress::Response> res) = 0;
+      virtual int handler(std::shared_ptr<PantherExpress::Response> res) = 0;
   };
 }
 

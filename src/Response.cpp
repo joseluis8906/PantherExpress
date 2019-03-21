@@ -9,7 +9,7 @@
 
 PantherExpress::Response::Response() {
   this->statusCode = PantherExpress::HTTP_STATUS::OK;
-  this->set("Content-Type", "text/plain");
+  this->set("Content-Type", "text/plain; charset=utf-8")->set("X-Powered-By", "PantherExpress");
 }
 
 int PantherExpress::Response::send(const std::string &body) {
